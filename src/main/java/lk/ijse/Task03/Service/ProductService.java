@@ -5,5 +5,5 @@ import lk.ijse.Task03.DTO.ProductDTO;
 public interface ProductService {
     ProductDTO saveProduct(ProductDTO productDTO);
 
-    void updateProduct(ProductDTO productDTO);
+    ProductDTO updateProduct(ProductDTO productDTO);
 }

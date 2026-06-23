@@ -4,19 +4,24 @@ import lk.ijse.Task03.DTO.CategoryDTO;
 import lk.ijse.Task03.DTO.ProductDTO;
 import lk.ijse.Task03.Entity.Category;
 import lk.ijse.Task03.Entity.Product;
+import lk.ijse.Task03.Repository.CategoryRepository;
 import lk.ijse.Task03.Repository.ProductRepository;
 import lk.ijse.Task03.Service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -47,7 +52,37 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void updateProduct(ProductDTO productDTO) {
+    public ProductDTO updateProduct(ProductDTO productDTO) {
+    log.info("ProductServiceImpl - updateProduct() called");
+        try {
+            Optional<Product> optionalProduct = productRepository.findById(productDTO.getProductId());
+            if (!optionalProduct.isPresent()){
+                throw new RuntimeException("Product not found with id: " + productDTO.getProductId());
+            }
+            Product product = optionalProduct.get();
+            product.setProductId(productDTO.getProductId());
+            product.setProductName(productDTO.getProductName());
+            product.setProductPrice(productDTO.getProductPrice());
+            product.setProductQty(productDTO.getProductQty());
 
+            Optional<Category> optionalCategory = categoryRepository.findById(productDTO.getCategoryId());
+            if (!optionalCategory.isPresent()){
+                throw new RuntimeException("Category not found with id: " + productDTO.getCategoryId());
+            }
+            Category category = optionalCategory.get();
+            product.setCategory(category);
+            Product updateProduct =productRepository.save(product);
+            ProductDTO responseDTO = new ProductDTO();
+            responseDTO.setProductId(updateProduct.getProductId());
+            responseDTO.setProductName(updateProduct.getProductName());
+            responseDTO.setProductPrice(updateProduct.getProductPrice());
+            responseDTO.setProductQty(updateProduct.getProductQty());
+            responseDTO.setCategoryId(updateProduct.getCategory().getCategoryId());
+
+            return responseDTO;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

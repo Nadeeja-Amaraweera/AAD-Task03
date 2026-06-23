@@ -29,4 +29,10 @@ public class ProductController {
         ProductDTO productDTO1 = productService.saveProduct(productDTO);
         return new CommonResponse(OPERATION_SUCCESS,productDTO1,SUCCESS_MESSAGE);
     }
+
+    @PostMapping(value = "/update",produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommonResponse updateProduct(@RequestBody ProductDTO productDTO){
+        ProductDTO productDTO1 = productService.updateProduct(productDTO);
+        return new CommonResponse(OPERATION_SUCCESS,productDTO1,SUCCESS_MESSAGE);
+    }
 }
