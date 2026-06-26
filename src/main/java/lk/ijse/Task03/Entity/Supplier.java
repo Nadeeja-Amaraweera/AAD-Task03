@@ -16,6 +16,7 @@ public class Supplier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long supplierId;
     private String supplierName;
+    private String supplierAddress;
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SupplierRecord> supplierRecordList;
