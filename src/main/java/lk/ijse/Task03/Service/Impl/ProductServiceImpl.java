@@ -10,6 +10,8 @@ import lk.ijse.Task03.Service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -72,6 +74,7 @@ public class ProductServiceImpl implements ProductService {
             Category category = optionalCategory.get();
             product.setCategory(category);
             Product updateProduct =productRepository.save(product);
+
             ProductDTO responseDTO = new ProductDTO();
             responseDTO.setProductId(updateProduct.getProductId());
             responseDTO.setProductName(updateProduct.getProductName());
@@ -82,6 +85,59 @@ public class ProductServiceImpl implements ProductService {
             return responseDTO;
 
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ProductDTO updateProductInventory(ProductDTO productDTO) {
+        log.info("ProductServiceImpl - updateProductInventory() called");
+        try {
+            Optional<Product> optionalProduct = productRepository.findById(productDTO.getProductId());
+            if (!optionalProduct.isPresent()){
+                throw new RuntimeException("Product not found with id: " + productDTO.getProductId());
+            }
+            Product product = optionalProduct.get();
+            product.setProductQty(productDTO.getProductQty());
+            Product updateInventory  = productRepository.save(product);
+
+            ProductDTO responseDTO = new ProductDTO();
+            responseDTO.setProductId(updateInventory.getProductId());
+            responseDTO.setProductName(updateInventory.getProductName());
+            responseDTO.setProductPrice(updateInventory.getProductPrice());
+            responseDTO.setProductQty(updateInventory.getProductQty());
+            responseDTO.setCategoryId(updateInventory.getCategory().getCategoryId());
+
+            return responseDTO;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<ProductDTO> viewLowStocks() {
+        log.info("ProductServiceImpl - viewLowStocks() called");
+        try {
+            List<ProductDTO> lowStockProducts = productRepository.findByProductQtyLessThanEqual(100);
+            if (lowStockProducts.isEmpty()){
+                log.info("No low stock products found");
+                return List.of();
+            }
+            List<ProductDTO> productDTOList = new ArrayList<>();
+            for (ProductDTO product : lowStockProducts) {
+                ProductDTO productDTO = new ProductDTO();
+                productDTO.setProductId(product.getProductId());
+                productDTO.setProductName(product.getProductName());
+                productDTO.setProductPrice(product.getProductPrice());
+                productDTO.setProductQty(product.getProductQty());
+                productDTO.setCategoryId(product.getCategoryId());
+                productDTOList.add(productDTO);
+            }
+            return productDTOList;
+
+
+        }catch (Exception e){
             throw new RuntimeException(e);
         }
     }
