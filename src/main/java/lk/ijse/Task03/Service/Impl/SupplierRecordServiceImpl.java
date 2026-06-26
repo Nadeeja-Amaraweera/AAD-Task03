@@ -57,6 +57,7 @@ public class SupplierRecordServiceImpl implements SupplierRecordService {
             updateProductQuantity(product,dto.getQuantity());
 
             SupplierRecordDTO responseDto = new SupplierRecordDTO();
+            responseDto.setSupplierRecordId(saveRecord.getSupplierRecordId());
             responseDto.setSupplierId(saveRecord.getSupplier().getSupplierId());
             responseDto.setProductId(saveRecord.getProduct().getProductId());
             responseDto.setRestockDate(saveRecord.getRestockDate());
