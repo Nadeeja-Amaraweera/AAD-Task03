@@ -1,13 +1,22 @@
 package lk.ijse.Task03.Service.Impl;
 
+import lk.ijse.Task03.DTO.OrderProductDTO;
 import lk.ijse.Task03.DTO.PlaceOrderDTO;
+import lk.ijse.Task03.Entity.Customer;
+import lk.ijse.Task03.Entity.Order;
+import lk.ijse.Task03.Entity.OrderItem;
+import lk.ijse.Task03.Entity.Product;
 import lk.ijse.Task03.Repository.CustomerRepository;
 import lk.ijse.Task03.Repository.OrderItemRepository;
 import lk.ijse.Task03.Repository.OrderRepository;
 import lk.ijse.Task03.Repository.ProductRepository;
 import lk.ijse.Task03.Service.OrderItemService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -27,6 +36,52 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public PlaceOrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
-        return null;
+        log.info("OrderItemServiceImpl - placeOrder() called with order details: {}", placeOrderDTO);
+        try {
+
+            Order order = new Order();
+            order.setTotalAmount(placeOrderDTO.getTotalAmount());
+            order.setOrderDate(LocalDate.now());
+
+            Optional<Customer> optionalCustomer = customerRepository.findById(placeOrderDTO.getCustomerId());
+            if (optionalCustomer.isEmpty()){
+                throw new RuntimeException("Customer not found with ID: " + placeOrderDTO.getCustomerId());
+            }
+            Customer customer = optionalCustomer.get();
+            order.setCustomer(customer);
+
+            log.info("Debug customer");
+
+            Order saveOrder = orderRepository.save(order);
+
+            for (OrderProductDTO productId : placeOrderDTO.getItemIdList()){
+                OrderItem orderItem = new OrderItem();
+
+                Optional<Product> optionalProduct = productRepository.findById(productId.getProductId());
+                if (optionalProduct.isEmpty()) {
+                    throw new RuntimeException("Product not found with ID: " + productId);
+                }
+
+                Product product = optionalProduct.get();
+                orderItem.setProduct(product);
+                orderItem.setOrder(saveOrder);
+                orderItem.setProductQty(productId.getQuantity());
+                orderItem.setTotal(productId.getPrice() * productId.getQuantity());
+
+                orderItemRepository.save(orderItem);
+
+            }
+
+            PlaceOrderDTO responseDTO = new PlaceOrderDTO();
+            responseDTO.setItemIdList(placeOrderDTO.getItemIdList());
+            responseDTO.setOrderDate(saveOrder.getOrderDate());
+            responseDTO.setTotalAmount(saveOrder.getTotalAmount());
+            responseDTO.setCustomerId(saveOrder.getCustomer().getCustomerId());
+
+            return responseDTO;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

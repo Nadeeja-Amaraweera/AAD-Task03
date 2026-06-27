@@ -13,9 +13,8 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long orderItemId;
-    private long orderId;
-    private long productId;
-    private int quantity;
+    private int productQty;
+    private double total;
 
     @ManyToOne
     private Order order;
