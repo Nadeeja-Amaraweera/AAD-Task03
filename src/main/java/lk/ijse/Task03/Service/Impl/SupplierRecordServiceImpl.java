@@ -10,6 +10,7 @@ import lk.ijse.Task03.Repository.SupplierRepository;
 import lk.ijse.Task03.Service.SupplierRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -29,8 +30,9 @@ public class SupplierRecordServiceImpl implements SupplierRecordService {
         this.productRepository = productRepository;
     }
 
-    @Transactional
+
     @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public SupplierRecordDTO saveSupplierRecord(SupplierRecordDTO dto) {
         log.info("SupplierRecordServiceImpl - saveSupplierRecord() called");
         try {
