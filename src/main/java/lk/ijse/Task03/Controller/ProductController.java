@@ -46,4 +46,16 @@ public class ProductController {
         List<ProductDTO> productDTO = productService.viewLowStocks();
         return new CommonResponse(OPERATION_SUCCESS, productDTO, SUCCESS_MESSAGE);
     }
+
+    @GetMapping(value = "/filterProductName/{productName}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommonResponse filterProductByName(@PathVariable String productName){
+        List<ProductDTO> productDTOList = productService.filterProducts(productName);
+        return new CommonResponse(OPERATION_SUCCESS,productDTOList,SUCCESS_MESSAGE);
+    }
+
+    @GetMapping(value = "/filterProductCategoryName/{categoryName}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommonResponse filterProductByCategoryName(@PathVariable String categoryName){
+        List<ProductDTO> productDTOList = productService.filterProductsCategory(categoryName);
+        return new CommonResponse(OPERATION_SUCCESS,productDTOList,SUCCESS_MESSAGE);
+    }
 }

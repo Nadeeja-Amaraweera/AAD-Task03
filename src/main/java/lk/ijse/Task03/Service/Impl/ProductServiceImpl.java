@@ -141,4 +141,60 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<ProductDTO> filterProducts(String productName) {
+        log.info("ProductServiceImpl - filterProducts() called");
+        try {
+
+        List<ProductDTO> filter = productRepository.filterProductByName(productName);
+        if (filter.isEmpty()) {
+            log.info("No products found with name: {}", productName);
+            return List.of();
+        }
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        for (ProductDTO product : filter) {
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setProductId(product.getProductId());
+            productDTO.setProductName(product.getProductName());
+            productDTO.setProductPrice(product.getProductPrice());
+            productDTO.setProductQty(product.getProductQty());
+            productDTO.setCategoryId(product.getCategoryId());
+            productDTOList.add(productDTO);
+        }
+
+        return productDTOList;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<ProductDTO> filterProductsCategory(String categoryName) {
+        log.info("ProductServiceImpl - filterProductsCategory() called");
+        try {
+
+            List<ProductDTO> filter = productRepository.filterProductByCategoryName(categoryName);
+            if (filter.isEmpty()) {
+                log.info("No products found with Category name: {}", categoryName);
+                return List.of();
+            }
+            List<ProductDTO> productDTOList = new ArrayList<>();
+            for (ProductDTO product : filter) {
+                ProductDTO productDTO = new ProductDTO();
+                productDTO.setProductId(product.getProductId());
+                productDTO.setProductName(product.getProductName());
+                productDTO.setProductPrice(product.getProductPrice());
+                productDTO.setProductQty(product.getProductQty());
+                productDTO.setCategoryId(product.getCategoryId());
+                productDTOList.add(productDTO);
+            }
+
+            return productDTOList;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

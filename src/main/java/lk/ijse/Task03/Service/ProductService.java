@@ -12,4 +12,8 @@ public interface ProductService {
     ProductDTO updateProductInventory(ProductDTO productDTO);
 
     List<ProductDTO> viewLowStocks();
+
+    List<ProductDTO> filterProducts(String productName);
+
+    List<ProductDTO> filterProductsCategory(String categoryName);
 }
