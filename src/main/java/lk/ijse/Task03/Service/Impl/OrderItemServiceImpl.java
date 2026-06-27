@@ -16,6 +16,7 @@ import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -79,6 +80,38 @@ public class OrderItemServiceImpl implements OrderItemService {
             responseDTO.setCustomerId(saveOrder.getCustomer().getCustomerId());
 
             return responseDTO;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<PlaceOrderDTO> getAllOrders() {
+        log.info("OrderItemServiceImpl - getAllOrders() called");
+        try {
+            List<Order> orderList = orderRepository.findAll();
+            log.info("Total orders found: {}", orderList.size());
+
+            List<PlaceOrderDTO> responseList = orderList.stream().map(order -> {
+                PlaceOrderDTO placeOrderDTO = new PlaceOrderDTO();
+                placeOrderDTO.setCustomerId(order.getCustomer().getCustomerId());
+                placeOrderDTO.setOrderDate(order.getOrderDate());
+                placeOrderDTO.setTotalAmount(order.getTotalAmount());
+
+                List<OrderProductDTO> productDTOList = order.getOrderItemList().stream().map(orderItem -> {
+                    OrderProductDTO productDTO = new OrderProductDTO();
+                    productDTO.setProductId(orderItem.getProduct().getProductId());
+                    productDTO.setQuantity(orderItem.getProductQty());
+                    productDTO.setPrice(orderItem.getTotal() / orderItem.getProductQty());
+                    return productDTO;
+                }).toList();
+
+                placeOrderDTO.setItemIdList(productDTOList);
+                return placeOrderDTO;
+            }).toList();
+
+            return responseList;
 
         } catch (Exception e) {
             throw new RuntimeException(e);
