@@ -16,6 +16,7 @@ import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,23 +94,25 @@ public class OrderItemServiceImpl implements OrderItemService {
             List<Order> orderList = orderRepository.findAll();
             log.info("Total orders found: {}", orderList.size());
 
-            List<PlaceOrderDTO> responseList = orderList.stream().map(order -> {
+            List<PlaceOrderDTO> responseList = new ArrayList<>();
+
+            for (Order order : orderList){
                 PlaceOrderDTO placeOrderDTO = new PlaceOrderDTO();
-                placeOrderDTO.setCustomerId(order.getCustomer().getCustomerId());
                 placeOrderDTO.setOrderDate(order.getOrderDate());
                 placeOrderDTO.setTotalAmount(order.getTotalAmount());
+                placeOrderDTO.setCustomerId(order.getCustomer().getCustomerId());
 
-                List<OrderProductDTO> productDTOList = order.getOrderItemList().stream().map(orderItem -> {
-                    OrderProductDTO productDTO = new OrderProductDTO();
-                    productDTO.setProductId(orderItem.getProduct().getProductId());
-                    productDTO.setQuantity(orderItem.getProductQty());
-                    productDTO.setPrice(orderItem.getTotal() / orderItem.getProductQty());
-                    return productDTO;
-                }).toList();
-
-                placeOrderDTO.setItemIdList(productDTOList);
-                return placeOrderDTO;
-            }).toList();
+                List<OrderProductDTO> orderProductDTOList = new ArrayList<>();
+                for (OrderItem orderItem : order.getOrderItemList()){
+                    OrderProductDTO orderProductDTO = new OrderProductDTO();
+                    orderProductDTO.setProductId(orderItem.getProduct().getProductId());
+                    orderProductDTO.setQuantity(orderItem.getProductQty());
+                    orderProductDTO.setPrice(orderItem.getTotal() / orderItem.getProductQty());
+                    orderProductDTOList.add(orderProductDTO);
+                }
+                placeOrderDTO.setItemIdList(orderProductDTOList);
+                responseList.add(placeOrderDTO);
+            }
 
             return responseList;
 
